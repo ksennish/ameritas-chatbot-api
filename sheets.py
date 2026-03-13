@@ -35,18 +35,7 @@ SPREADSHEET_ID = "1jLlqZ8rOsD5kkGwm0nkRQji0q6mfAyN2"
 # (DOB and SSN are not in the sheet — stored here for demo purposes only)
 # ---------------------------------------------------------------------------
 
-MOCK_AUTH = {
-    "LI-2847391": {"dob": "1975-04-12", "ssn_last4": "4821", "policyholder_name": "James Mitchell"},
-    "LI-3019284": {"dob": "1968-09-30", "ssn_last4": "7743", "policyholder_name": "Patricia Nguyen"},
-    "LI-4401857": {"dob": "1982-06-15", "ssn_last4": "3302", "policyholder_name": "Marcus Williams"},
-    "LI-2201934": {"dob": "1960-11-22", "ssn_last4": "5589", "policyholder_name": "Sandra Torres"},
-    "LI-5590123": {"dob": "1990-03-08", "ssn_last4": "9910", "policyholder_name": "Brian Chen"},
-    "LI-3384920": {"dob": "1978-07-19", "ssn_last4": "6621", "policyholder_name": "Olivia Grant"},
-    "LI-6670045": {"dob": "1985-12-01", "ssn_last4": "2284", "policyholder_name": "Kevin Park"},
-    "LI-7723001": {"dob": "1955-02-28", "ssn_last4": "1234", "policyholder_name": "Harold Simmons"},
-    "LI-8812450": {"dob": "1972-08-14", "ssn_last4": "5678", "policyholder_name": "Denise Fowler"},
-    "LI-9934201": {"dob": "1949-05-17", "ssn_last4": "9012", "policyholder_name": "Raymond Blake"},
-}
+
 
 # ---------------------------------------------------------------------------
 # Google Sheets client (lazy-loaded)
@@ -112,13 +101,6 @@ def _get_sheet_records(tab_name: str) -> list:
 # Public data-access functions
 # ---------------------------------------------------------------------------
 
-def get_auth_record(policy_number: str) -> Optional[dict]:
-    """
-    Returns auth record with keys: dob, ssn_last4, policyholder_name
-    DOB and SSN are not stored in the sheet — always pulled from MOCK_AUTH.
-    The policyholder name is cross-checked against the sheet for consistency.
-    """
-    return MOCK_AUTH.get(policy_number.upper())
 
 
 def get_policy_info(policy_number: str) -> Optional[dict]:
