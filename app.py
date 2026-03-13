@@ -110,8 +110,8 @@ def health():
 @log_request
 def authenticate():
     """
-    Authenticate a caller by policy number, date of birth, and last 4 of SSN.
-    Returns policyholder name and masked policy number on success.
+    Authenticate a caller by policy number only.
+    Returns policyholder name on success.
 
     Omilia usage:
       - Call this at the start of every session
@@ -119,23 +119,13 @@ def authenticate():
     """
     body = request.get_json(silent=True) or {}
     policy_number = (body.get("policy_number") or "").strip().upper()
-    dob_raw = (body.get("dob") or "").strip()           # expected: YYYY-MM-DD or MM/DD/YYYY
-    ssn_last4 = (body.get("ssn_last4") or "").strip()
 
-    if not policy_number or not dob_raw or not ssn_last4:
-        return error_response("policy_number, dob, and ssn_last4 are all required.", "MISSING_FIELDS")
+    if not policy_number:
+        return error_response("policy_number is required.", "MISSING_FIELDS")
 
-    record = sheets.get_auth_record(policy_number)
+    record = sheets.get_policy_info(policy_number)
     if not record:
-        return error_response("Policy not found.", "POLICY_NOT_FOUND")
-
-    # Normalise DOB to YYYY-MM-DD for comparison
-    dob_normalised = _normalise_date(dob_raw)
-    if not dob_normalised:
-        return error_response("dob must be YYYY-MM-DD or MM/DD/YYYY.", "INVALID_DOB_FORMAT")
-
-    if dob_normalised != record["dob"] or ssn_last4 != record["ssn_last4"]:
-        return error_response("Authentication failed. DOB or SSN does not match.", "AUTH_FAILED")
+        return error_response("Policy not found. Please check your policy number and try again.", "POLICY_NOT_FOUND")
 
     return omilia_response({
         "status": "authenticated",
