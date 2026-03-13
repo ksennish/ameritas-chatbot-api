@@ -49,15 +49,20 @@ def omilia_response(payload: dict, http_status: int = 200) -> Response:
     """
     Build a Flask Response that Omilia Cloud Platform can reliably parse.
 
+    IMPORTANT: Omilia's MiniApp/DiaManT expects all response fields to live
+    inside a top-level `wsResponseBody` wrapper. Without this wrapper the
+    MiniApp reports 'Tool doesn't contain wsResponseBody' and fails.
+
     Key design decisions:
-    1. json.dumps with ensure_ascii=False — avoids double-encoding issues
-    2. Content-Type is set explicitly on the Response object (not via a header dict)
-       because Flask's make_response can sometimes omit it on certain gunicorn configs
-    3. We do NOT use jsonify() — it can produce chunked responses on some WSGI servers
-    4. We set Content-Length so Omilia's HTTP client knows exactly when the body ends
-       and does not hang waiting for more data (timeout = 0 workaround)
+    1. All payload fields are nested under `wsResponseBody`
+    2. json.dumps with ensure_ascii=False avoids double-encoding issues
+    3. Content-Type is set explicitly on the Response object
+    4. We do NOT use jsonify() — it can produce chunked responses
+    5. Content-Length is set so Omilia knows exactly when the body ends
+       and does not hang waiting (timeout = 0 workaround)
     """
-    body = json.dumps(payload, ensure_ascii=False, default=str)
+    wrapped = {"wsResponseBody": payload}
+    body = json.dumps(wrapped, ensure_ascii=False, default=str)
     encoded = body.encode("utf-8")
 
     resp = Response(
@@ -70,11 +75,6 @@ def omilia_response(payload: dict, http_status: int = 200) -> Response:
     resp.headers["Cache-Control"] = "no-cache, no-store"
     resp.headers["X-Content-Type-Options"] = "nosniff"
     return resp
-
-
-def error_response(message: str, code: str = "ERROR") -> Response:
-    return omilia_response({"status": "error", "error_code": code, "message": message})
-
 
 # ---------------------------------------------------------------------------
 # Request logging decorator
