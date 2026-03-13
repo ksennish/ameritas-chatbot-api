@@ -393,15 +393,6 @@ def initiate_reinstatement(policy_number: str):
 # Utility helpers
 # ---------------------------------------------------------------------------
 
-def _normalise_date(raw: str) -> str:
-    """Convert MM/DD/YYYY or YYYY-MM-DD to YYYY-MM-DD. Returns '' on failure."""
-    for fmt in ("%Y-%m-%d", "%m/%d/%Y", "%m-%d-%Y"):
-        try:
-            return datetime.strptime(raw, fmt).strftime("%Y-%m-%d")
-        except ValueError:
-            continue
-    return ""
-
 
 def _billing_message(r: dict) -> str:
     if r.get("lapse_warning") == "Lapsed":
