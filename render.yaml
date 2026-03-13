@@ -1,0 +1,34 @@
+# render.yaml — Render deployment configuration
+# Docs: https://render.com/docs/yaml-spec
+
+services:
+  - type: web
+    name: ameritas-chatbot-api
+    runtime: python
+    region: oregon          # Change to ohio or virginia if latency matters for your Omilia instance
+    plan: free              # Upgrade to starter ($7/mo) to eliminate cold starts in production demos
+
+    buildCommand: pip install -r requirements.txt
+
+    # Gunicorn flags explained:
+    #   --workers 2          : 2 worker processes (free tier is single-core, 2 is safe)
+    #   --timeout 30         : worker timeout in seconds — Omilia calls should never need more than 10s
+    #   --keep-alive 2       : seconds to keep idle connections alive (low value = safer for Omilia)
+    #   --log-level info     : surface request logs in Render dashboard
+    #   --access-logfile -   : print access logs to stdout (captured by Render)
+    #   --error-logfile -    : print error logs to stdout
+    startCommand: >
+      gunicorn app:app
+      --workers 2
+      --timeout 30
+      --keep-alive 2
+      --log-level info
+      --access-logfile -
+      --error-logfile -
+      --bind 0.0.0.0:$PORT
+
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.9.6
+      - key: GOOGLE_CREDENTIALS_JSON
+        sync: false   # Set this manually in the Render dashboard — paste your service account JSON

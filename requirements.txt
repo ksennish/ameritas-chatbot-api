@@ -1,0 +1,13 @@
+# Ameritas Chatbot API — Python 3.9.6
+# Pin minor versions for reproducible Render deploys
+
+Flask==2.3.3
+flask-cors==4.0.0
+gunicorn==21.2.0
+
+# Google Sheets integration
+gspread==6.1.2
+google-auth==2.29.0
+
+# Keeps Werkzeug pinned to a Flask 2.3-compatible version
+Werkzeug==2.3.7
