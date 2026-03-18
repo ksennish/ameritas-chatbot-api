@@ -474,16 +474,6 @@ def _beneficiary_message(r: dict) -> str:
     return msg
 ```
 
----
-
-No changes needed to `sheets.py` at all — `get_policy_info` already pulls all the beneficiary fields from the sheet.
-
----
-
-The full URL for Omilia will be:
-```
-GET https://ameritas-chatbot-api.onrender.com/policy/{policy_number}/beneficiaries
-
 # ---------------------------------------------------------------------------
 # Error handlers — always return JSON so Omilia can parse failures
 # ---------------------------------------------------------------------------
