@@ -388,6 +388,37 @@ def initiate_reinstatement(policy_number: str):
         "demo_note": "This is a simulated reinstatement. No real action has been taken.",
     })
 
+ # ---------------------------------------------------------------------------
+# 6. BENEFICIARY LOOKUP
+# GET /policy/<policy_number>/beneficiaries
+# ---------------------------------------------------------------------------
+
+@app.route("/policy/<policy_number>/beneficiaries", methods=["GET"])
+@log_request
+def beneficiaries(policy_number: str):
+    """
+    Return all beneficiary information for a policy.
+
+    Returns: primary_beneficiary_1, pb1_pct, primary_beneficiary_2,
+             pb2_pct, contingent_beneficiary, cb_pct
+    """
+    policy_number = policy_number.strip().upper()
+    record = sheets.get_policy_info(policy_number)
+    if not record:
+        return error_response("Policy not found.", "POLICY_NOT_FOUND")
+
+    return omilia_response({
+        "status": "success",
+        "policy_number": policy_number,
+        "policyholder_name": record["policyholder_name"],
+        "primary_beneficiary_1": record["primary_beneficiary_1"],
+        "primary_beneficiary_1_pct": record["pb1_pct"],
+        "primary_beneficiary_2": record["primary_beneficiary_2"],
+        "primary_beneficiary_2_pct": record["pb2_pct"],
+        "contingent_beneficiary": record["contingent_beneficiary"],
+        "contingent_beneficiary_pct": record["cb_pct"],
+        "message": _beneficiary_message(record),
+    })
 
 # ---------------------------------------------------------------------------
 # Utility helpers
@@ -432,6 +463,26 @@ def _reinstatement_message(r: dict) -> str:
         f"Your reinstatement window expires {r.get('reinstatement_window_expiry')}."
     )
 
+def _beneficiary_message(r: dict) -> str:
+    msg = "Your primary beneficiary is "
+    if r.get("primary_beneficiary_2"):
+        msg += f"{r['primary_beneficiary_1']} at {r['pb1_pct']} and {r['primary_beneficiary_2']} at {r['pb2_pct']}."
+    else:
+        msg += f"{r['primary_beneficiary_1']} at {r['pb1_pct']}."
+    if r.get("contingent_beneficiary"):
+        msg += f" Your contingent beneficiary is {r['contingent_beneficiary']} at {r['cb_pct']}."
+    return msg
+```
+
+---
+
+No changes needed to `sheets.py` at all — `get_policy_info` already pulls all the beneficiary fields from the sheet.
+
+---
+
+The full URL for Omilia will be:
+```
+GET https://ameritas-chatbot-api.onrender.com/policy/{policy_number}/beneficiaries
 
 # ---------------------------------------------------------------------------
 # Error handlers — always return JSON so Omilia can parse failures
