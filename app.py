@@ -472,7 +472,6 @@ def _beneficiary_message(r: dict) -> str:
     if r.get("contingent_beneficiary"):
         msg += f" Your contingent beneficiary is {r['contingent_beneficiary']} at {r['cb_pct']}."
     return msg
-```
 
 # ---------------------------------------------------------------------------
 # Error handlers — always return JSON so Omilia can parse failures
